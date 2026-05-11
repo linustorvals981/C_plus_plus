@@ -69,5 +69,5 @@ Testing/
 .cache/
 
 #adicionales
-.png
-.txt
+*.png
+*.txt
