@@ -76,4 +76,4 @@ void printVector(vector<Empleado>& vect) {
         cout << "Salario : $" << it->salario << endl;
         cout << endl;
     }
-}
+}   
