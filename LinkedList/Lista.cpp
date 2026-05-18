@@ -21,19 +21,17 @@ struct Lista {
 // actual en cin antes de usar getline.
 // Reemplaza el fflush(stdin) que era UB.
 // ─────────────────────────────────────────────
-void limpiarBuffer() {
-  cin.ignore(numeric_limits<streamsize>::max(), '\n');
-}
+void limpiarBuffer() { cin.ignore(numeric_limits<streamsize>::max(), '\n'); }
 
 Tarea *crearNodo() {
   Tarea *nuevo = new Tarea;
 
   cout << "Ingrese el titulo de la tarea: ";
-  limpiarBuffer();                          // FIX #1: reemplaza fflush(stdin)
+  limpiarBuffer(); // FIX #1: reemplaza fflush(stdin)
   getline(cin, nuevo->titulo);
 
   cout << "Ingrese la descripcion de la tarea: ";
-  limpiarBuffer();                          // FIX #1: reemplaza fflush(stdin)
+  limpiarBuffer(); // FIX #1: reemplaza fflush(stdin)
   getline(cin, nuevo->descripcion);
 
   nuevo->completada = false;
@@ -68,8 +66,8 @@ void enlazarNodoFront(Lista *&lista) {
   } else {
     if (lista->cabeza == nullptr) {
       lista->cabeza = crearNodo();
-      lista->longitud = 1;    // FIX #3: asignar 1 en lugar de incrementar
-                              // valor potencialmente no inicializado
+      lista->longitud = 1; // FIX #3: asignar 1 en lugar de incrementar
+                           // valor potencialmente no inicializado
     } else {
       Tarea *aux = lista->cabeza;
       lista->cabeza = crearNodo();
@@ -80,7 +78,7 @@ void enlazarNodoFront(Lista *&lista) {
 }
 
 void mostrarLista(Lista *&lista) {
-  if (lista == nullptr || lista->cabeza == nullptr) {  // FIX #4: verifica cabeza
+  if (lista == nullptr || lista->cabeza == nullptr) { // FIX #4: verifica cabeza
     cout << "La lista esta vacia.\n";
     return;
   }
@@ -105,8 +103,9 @@ void eliminarTarea(Lista *&lista) {
   }
 
   string titulo;
-  cout << "Ingrese el nombre de la tarea a eliminar: ";  // FIX #5: "nompre" → "nombre"
-  limpiarBuffer();                                        // FIX #1: reemplaza fflush(stdin)
+  cout << "Ingrese el nombre de la tarea a eliminar: "; // FIX #5: "nompre" →
+                                                        // "nombre"
+  limpiarBuffer(); // FIX #1: reemplaza fflush(stdin)
   getline(cin, titulo);
 
   Tarea *actual = lista->cabeza;
@@ -137,7 +136,8 @@ void eliminarTarea(Lista *&lista) {
 // FIX #6: función para liberar toda la memoria
 // ─────────────────────────────────────────────
 void destruirLista(Lista *&lista) {
-  if (lista == nullptr) return;
+  if (lista == nullptr)
+    return;
 
   Tarea *actual = lista->cabeza;
   while (actual != nullptr) {
@@ -147,4 +147,27 @@ void destruirLista(Lista *&lista) {
   }
   delete lista;
   lista = nullptr;
+}
+
+void marcarCompletada(Lista *&lista) {
+  if (lista == nullptr || lista->cabeza == nullptr) {
+    cout << "La lista esta vacia.\n";
+    return;
+  }
+
+  string titulo;
+  cout << "Ingrese el nombre de la tarea a marcar como completada: ";
+  limpiarBuffer();
+  getline(cin, titulo);
+
+  Tarea *actual = lista->cabeza;
+  while (actual != nullptr) {
+    if (actual->titulo == titulo) {
+      actual->completada = true;
+      return;
+    }
+    actual = actual->siguiente;
+  }
+
+  cout << "La tarea no se encontro.\n";
 }
