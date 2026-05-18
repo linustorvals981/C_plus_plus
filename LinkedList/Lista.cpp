@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 #include <string>
 
 using namespace std;
@@ -15,14 +16,26 @@ struct Lista {
   struct Tarea *cabeza;
 };
 
+// ─────────────────────────────────────────────
+// Función auxiliar: descarta el resto de la línea
+// actual en cin antes de usar getline.
+// Reemplaza el fflush(stdin) que era UB.
+// ─────────────────────────────────────────────
+void limpiarBuffer() {
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+
 Tarea *crearNodo() {
   Tarea *nuevo = new Tarea;
+
   cout << "Ingrese el titulo de la tarea: ";
-  fflush(stdin);
+  limpiarBuffer();                          // FIX #1: reemplaza fflush(stdin)
   getline(cin, nuevo->titulo);
+
   cout << "Ingrese la descripcion de la tarea: ";
-  fflush(stdin);
+  limpiarBuffer();                          // FIX #1: reemplaza fflush(stdin)
   getline(cin, nuevo->descripcion);
+
   nuevo->completada = false;
   nuevo->siguiente = nullptr;
 
@@ -46,6 +59,7 @@ void enlazarNodoBack(Lista *&lista) {
     lista->longitud++;
   }
 }
+
 void enlazarNodoFront(Lista *&lista) {
   if (lista == nullptr) {
     lista = new Lista;
@@ -54,7 +68,8 @@ void enlazarNodoFront(Lista *&lista) {
   } else {
     if (lista->cabeza == nullptr) {
       lista->cabeza = crearNodo();
-      lista->longitud++;
+      lista->longitud = 1;    // FIX #3: asignar 1 en lugar de incrementar
+                              // valor potencialmente no inicializado
     } else {
       Tarea *aux = lista->cabeza;
       lista->cabeza = crearNodo();
@@ -65,7 +80,7 @@ void enlazarNodoFront(Lista *&lista) {
 }
 
 void mostrarLista(Lista *&lista) {
-  if (lista == nullptr) {
+  if (lista == nullptr || lista->cabeza == nullptr) {  // FIX #4: verifica cabeza
     cout << "La lista esta vacia.\n";
     return;
   }
@@ -84,14 +99,16 @@ void mostrarLista(Lista *&lista) {
 }
 
 void eliminarTarea(Lista *&lista) {
-  if (lista == nullptr) {
-    cout << "La lista esta vacia.";
+  if (lista == nullptr || lista->cabeza == nullptr) {
+    cout << "La lista esta vacia.\n";
     return;
   }
+
   string titulo;
-  cout << "Ingrese el nompre de la tarea a eliminar: ";
-  fflush(stdin);
+  cout << "Ingrese el nombre de la tarea a eliminar: ";  // FIX #5: "nompre" → "nombre"
+  limpiarBuffer();                                        // FIX #1: reemplaza fflush(stdin)
   getline(cin, titulo);
+
   Tarea *actual = lista->cabeza;
   Tarea *anterior = nullptr;
 
@@ -99,23 +116,35 @@ void eliminarTarea(Lista *&lista) {
     if (actual->titulo == titulo) {
       if (anterior == nullptr) {
         lista->cabeza = actual->siguiente;
-        delete actual;
-        lista->longitud--;
-        return;
       } else {
         anterior->siguiente = actual->siguiente;
-        delete actual;
-        lista->longitud--;
-        return;
       }
+      delete actual;
+      lista->longitud--;
+      return;
     }
     anterior = actual;
     actual = actual->siguiente;
   }
-  if (actual == nullptr)
-    cout << "La tarea no se encontro\n";
-  else {
-    anterior->siguiente = actual->siguiente;
-    lista->longitud--;
+
+  // FIX #2: se elimina el bloque else inalcanzable.
+  // Si llegamos aquí, el while terminó con actual == nullptr,
+  // lo que significa que no se encontró la tarea.
+  cout << "La tarea no se encontro.\n";
+}
+
+// ─────────────────────────────────────────────
+// FIX #6: función para liberar toda la memoria
+// ─────────────────────────────────────────────
+void destruirLista(Lista *&lista) {
+  if (lista == nullptr) return;
+
+  Tarea *actual = lista->cabeza;
+  while (actual != nullptr) {
+    Tarea *siguiente = actual->siguiente;
+    delete actual;
+    actual = siguiente;
   }
+  delete lista;
+  lista = nullptr;
 }
