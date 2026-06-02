@@ -1,6 +1,5 @@
 #include <iostream>
 #include <limits>
-#include <cctype>
 #include <string>
 
 using namespace std;
@@ -10,28 +9,34 @@ struct Tarea {
     string descripcion;
     double calificacion;
     bool completada;
-    struct Tarea *siguiente;
+    Tarea *siguiente;
 };
 
 struct Lista {
     int longitud;
-    struct Tarea *cabeza;
+    Tarea *cabeza;
 };
 
-void limpiarBuffer() { 
-    cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
-    //fflush(stdin);
+//--------------------------------------------------
+// Limpia el buffer de entrada
+//--------------------------------------------------
+void limpiarBuffer() {
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
+//--------------------------------------------------
+// Crear un nuevo nodo
+//--------------------------------------------------
 Tarea *crearNodo() {
+
     Tarea *nuevo = new Tarea;
 
+    limpiarBuffer();
+
     cout << "Ingrese el titulo de la tarea: ";
-    limpiarBuffer(); 
     getline(cin, nuevo->titulo);
 
     cout << "Ingrese la descripcion de la tarea: ";
-    limpiarBuffer(); 
     getline(cin, nuevo->descripcion);
 
     cout << "Ingrese la calificacion de la tarea: ";
@@ -43,73 +48,110 @@ Tarea *crearNodo() {
     return nuevo;
 }
 
+//--------------------------------------------------
+// Insertar nodo al final
+//--------------------------------------------------
 void enlazarNodoBack(Lista *&lista) {
+
     if (lista == nullptr) {
+
         lista = new Lista;
         lista->longitud = 1;
         lista->cabeza = crearNodo();
+
     } else if (lista->cabeza == nullptr) {
+
         lista->longitud = 1;
         lista->cabeza = crearNodo();
+
     } else {
+
         Tarea *aux = lista->cabeza;
+
         while (aux->siguiente != nullptr) {
             aux = aux->siguiente;
         }
+
         aux->siguiente = crearNodo();
         lista->longitud++;
     }
 }
 
+//--------------------------------------------------
+// Insertar nodo al inicio
+//--------------------------------------------------
 void enlazarNodoFront(Lista *&lista) {
+
     if (lista == nullptr) {
+
         lista = new Lista;
         lista->longitud = 1;
         lista->cabeza = crearNodo();
+
     } else {
+
         if (lista->cabeza == nullptr) {
+
             lista->cabeza = crearNodo();
-            lista->longitud = 1; 
+            lista->longitud = 1;
+
         } else {
+
             Tarea *aux = lista->cabeza;
+
             lista->cabeza = crearNodo();
             lista->cabeza->siguiente = aux;
+
             lista->longitud++;
         }
     }
 }
 
+//--------------------------------------------------
+// Mostrar lista
+//--------------------------------------------------
 void mostrarLista(Lista *&lista) {
+
     if (lista == nullptr || lista->cabeza == nullptr) {
         cout << "La lista esta vacia.\n";
         return;
     }
 
     Tarea *aux = lista->cabeza;
+
     while (aux != nullptr) {
-        cout << "--------------Tarea---------=-----\n";
-            cout << "|  Titulo       : " << actual->titulo << "\n";
-            cout << "|  Descripcion  : " << actual->descripcion << "\n";
-            cout << "|  Calificacion : " << actual->calificacion << "\n";
-            if (aux->completada) 
-                cout << "|  Estado       : Completada" << "\n";
-            else {
-                cout << "|  Estado       :  No Completada" << "\n";
-            
-            cout << "----------------------------------\n";
-        
+
+        cout << "\n-------------- TAREA ----------------\n";
+        cout << "| Titulo       : " << aux->titulo << "\n";
+        cout << "| Descripcion  : " << aux->descripcion << "\n";
+        cout << "| Calificacion : " << aux->calificacion << "\n";
+
+        if (aux->completada) {
+            cout << "| Estado       : Completada\n";
+        } else {
+            cout << "| Estado       : No completada\n";
+        }
+
+        cout << "-------------------------------------\n";
+
         aux = aux->siguiente;
     }
 }
 
+//--------------------------------------------------
+// Eliminar tarea
+//--------------------------------------------------
 void eliminarTarea(Lista *&lista) {
+
     if (lista == nullptr || lista->cabeza == nullptr) {
         cout << "La lista esta vacia.\n";
         return;
     }
 
     string titulo;
-    cout << "Ingrese el nombre de la tarea a eliminar: "; 
+
+    cout << "Ingrese el nombre de la tarea a eliminar: ";
+
     limpiarBuffer();
     getline(cin, titulo);
 
@@ -117,16 +159,24 @@ void eliminarTarea(Lista *&lista) {
     Tarea *anterior = nullptr;
 
     while (actual != nullptr) {
+
         if (actual->titulo == titulo) {
-        if (anterior == nullptr) {
-            lista->cabeza = actual->siguiente;
-        } else {
-            anterior->siguiente = actual->siguiente;
+
+            if (anterior == nullptr) {
+                lista->cabeza = actual->siguiente;
+            } else {
+                anterior->siguiente = actual->siguiente;
+            }
+
+            delete actual;
+
+            lista->longitud--;
+
+            cout << "Tarea eliminada correctamente.\n";
+
+            return;
         }
-        delete actual;
-        lista->longitud--;
-        return;
-        }
+
         anterior = actual;
         actual = actual->siguiente;
     }
@@ -134,117 +184,176 @@ void eliminarTarea(Lista *&lista) {
     cout << "La tarea no se encontro.\n";
 }
 
+//--------------------------------------------------
+// Destruir lista
+//--------------------------------------------------
 void destruirLista(Lista *&lista) {
+
     if (lista == nullptr)
         return;
 
     Tarea *actual = lista->cabeza;
+
     while (actual != nullptr) {
+
         Tarea *siguiente = actual->siguiente;
+
         delete actual;
+
         actual = siguiente;
     }
+
     delete lista;
+
     lista = nullptr;
 }
 
-//Esta funcion recorre la lista hasta encontrar el nombre especificado, 
-//muestra la actividad y permite alternar su estado.
+//--------------------------------------------------
+// Marcar tarea como completada
+//--------------------------------------------------
 void marcarCompletada(Lista *&lista) {
+
     if (lista == nullptr || lista->cabeza == nullptr) {
         cout << "La lista esta vacia.\n";
         return;
     }
 
     string titulo;
-    string aux;
-    cout << "Ingrese el nombre de la tarea a marcar como completada: ";
+    string opcion;
+
+    cout << "Ingrese el nombre de la tarea: ";
+
     limpiarBuffer();
     getline(cin, titulo);
 
     Tarea *actual = lista->cabeza;
 
     while (actual != nullptr) {
+
         if (actual->titulo == titulo) {
-            cout << "Quieres modificar el estado (y/n): ";
-            limpiarBuffer();
-            getline(cin, aux);
-            if (aux.compare("y") == 0 || aux.compare("Y") == 0) {
+
+            cout << "Desea marcar la tarea como completada? (y/n): ";
+            getline(cin, opcion);
+
+            if (opcion == "y" || opcion == "Y") {
+
                 actual->completada = true;
-                return;
+
+                cout << "Tarea marcada como completada.\n";
             }
+
+            return;
         }
+
         actual = actual->siguiente;
     }
 
     cout << "La tarea no se encontro.\n";
 }
 
-//La funcion itera sobre la lista e imprimen unicamente los nodos que
-//cumplan con la condicion de estado requerida.
+//--------------------------------------------------
+// Filtrar tareas
+//--------------------------------------------------
 void filtrarLista(Lista *&lista) {
+
     if (lista == nullptr || lista->cabeza == nullptr) {
         cout << "La lista esta vacia.\n";
         return;
     }
 
+    int opcion;
+
+    cout << "\n1. Mostrar completadas\n";
+    cout << "2. Mostrar no completadas\n";
+    cout << "Seleccione una opcion: ";
+
+    cin >> opcion;
+
     bool estado;
-    cout << "Ingresa (true/false) para filtrar las tareas completas/imcompletas respectivamente: ";
-    cin >> estado;
+
+    if (opcion == 1) {
+        estado = true;
+    } else {
+        estado = false;
+    }
 
     Tarea *actual = lista->cabeza;
+
     while (actual != nullptr) {
+
         if (actual->completada == estado) {
-            cout << "--------------Tarea---------=-----\n";
-            cout << "|  Titulo       : " << actual->titulo << "\n";
-            cout << "|  Descripcion  : " << actual->descripcion << "\n";
-            cout << "|  Calificacion : " << actual->calificacion << "\n";
-            cout << "|  Estado       : " << actual->completada << "\n";
-            cout << "----------------------------------\n";
+
+            cout << "\n-------------- TAREA ----------------\n";
+            cout << "| Titulo       : " << actual->titulo << "\n";
+            cout << "| Descripcion  : " << actual->descripcion << "\n";
+            cout << "| Calificacion : " << actual->calificacion << "\n";
+
+            if (actual->completada) {
+                cout << "| Estado       : Completada\n";
+            } else {
+                cout << "| Estado       : No completada\n";
+            }
+
+            cout << "-------------------------------------\n";
         }
+
         actual = actual->siguiente;
     }
 }
 
-//Esta funcion actua como un acumulador, sumando las calificaciones de todos los nodos
-//y dividiendolas entre el total de elementos.
+//--------------------------------------------------
+// Calcular promedio
+//--------------------------------------------------
 double calculaPromedio(Lista *&lista) {
+
     if (lista == nullptr || lista->cabeza == nullptr) {
+
         cout << "La lista esta vacia.\n";
+
         return 0.0;
     }
 
-    double sum = 0.0;
+    double suma = 0.0;
+
     Tarea *actual = lista->cabeza;
 
     while (actual != nullptr) {
-        sum += actual->calificacion;
+
+        suma += actual->calificacion;
+
+        actual = actual->siguiente;
     }
 
-    return sum / lista->longitud;
+    return suma / lista->longitud;
 }
 
+//--------------------------------------------------
+// Main
+//--------------------------------------------------
 int main() {
+
     Lista *lista = nullptr;
+
     int opcion;
 
     do {
+
         cout << "\n========== MENU ==========\n";
         cout << "1. Agregar tarea al inicio\n";
         cout << "2. Agregar tarea al final\n";
         cout << "3. Mostrar tareas\n";
         cout << "4. Eliminar tarea\n";
         cout << "5. Marcar tarea como completada\n";
-        cout << "6. Filtrar tareas por estado\n";
-        cout << "7. Calcular promedio de calificaciones\n";
+        cout << "6. Filtrar tareas\n";
+        cout << "7. Calcular promedio\n";
         cout << "8. Mostrar longitud de la lista\n";
         cout << "9. Destruir lista\n";
         cout << "0. Salir\n";
+
         cout << "Seleccione una opcion: ";
         cin >> opcion;
 
         switch (opcion) {
-
             case 1:
                 enlazarNodoFront(lista);
                 cout << "Tarea agregada al inicio.\n";
@@ -273,9 +382,11 @@ int main() {
 
             case 7:
                 if (lista != nullptr && lista->cabeza != nullptr) {
-                    cout << "Promedio de calificaciones: "
-                         << calculaPromedio(lista) << "\n";
+                    cout << "Promedio: "
+                         << calculaPromedio(lista)
+                         << "\n";
                 }
+
                 break;
 
             case 8:
@@ -283,8 +394,10 @@ int main() {
                     cout << "La lista no existe.\n";
                 } else {
                     cout << "Longitud de la lista: "
-                         << lista->longitud << "\n";
+                         << lista->longitud
+                         << "\n";
                 }
+
                 break;
 
             case 9:
