@@ -7,7 +7,7 @@ using namespace std;
 struct Tarea {
     string titulo;
     string descripcion;
-    double calificacion;
+    double calificacion;    
     bool completada;
     Tarea *siguiente;
 };

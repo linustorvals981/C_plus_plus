@@ -133,6 +133,38 @@ void EliminarNodos(Nodo*& cabeza) {
     cabeza = nullptr;
 }
 
+void Aplanar(Nodo*& cabeza) {
+    if (cabeza == nullptr) return;
+
+    Nodo* ultimo = cabeza->anterior;
+
+    // Rompemos el ciclo bidireccionalmente
+    ultimo->siguiente = nullptr;
+    cabeza->anterior = nullptr;
+}
+
+void PrintLinearForward(Nodo* cabeza) {
+    Nodo* temp = cabeza;
+    while (temp != nullptr) {
+        cout << temp->dato << " ";
+        temp = temp->siguiente;
+    }
+    cout << endl;
+}
+
+void PrintLinearBackward(Nodo* cabeza) {
+    if (cabeza == nullptr) return;
+    Nodo* temp = cabeza;
+    while (temp->siguiente != nullptr) {
+        temp = temp->siguiente;
+    }
+    while (temp != nullptr) {
+        cout << temp->dato << " ";
+        temp = temp->anterior;
+    }
+    cout << endl;
+}
+
 int main() {
 
     Nodo* cabeza = nullptr;
@@ -185,47 +217,26 @@ int main() {
     PrintForward(solo);      // no imprime nada
     cout << "(lista vacia)\n";
 
-    // --- EliminarNodos (limpiar todo) ---
-    cout << "\n=== EliminarNodos (limpiar lista completa) ===\n";
-    EliminarNodos(cabeza);
-    cout << "Lista despues de EliminarNodos: ";
-    PrintForward(cabeza);    // no imprime nada
-    cout << "(lista vacia)\n";
+    // --- Aplanar Lista ---
+    cout << "\n=== Aplanar Lista Circular Doble ===\n";
+    cout << "Lista antes de aplanar: ";
+    PrintForward(cabeza);
+    Aplanar(cabeza);
+    cout << "Lista despues de aplanar (hacia adelante): ";
+    PrintLinearForward(cabeza);
+    cout << "Lista despues de aplanar (hacia atras): ";
+    PrintLinearBackward(cabeza);
 
-    // --- EliminarNodos sobre lista ya vacia ---
-    cout << "\n=== EliminarNodos sobre lista vacia (no debe crashear) ===\n";
-    EliminarNodos(cabeza);
-    cout << "OK\n";
+    // --- Liberar Lista Lineal ---
+    Nodo* actual = cabeza;
+    while (actual != nullptr) {
+        Nodo* siguiente = actual->siguiente;
+        delete actual;
+        actual = siguiente;
+    }
+    cabeza = nullptr;
+    cout << "Memoria liberada.\n";
 
     return 0;
 }
-// int main() {
 
-//     Nodo* cabeza = nullptr;
-
-//     PushBack(cabeza, 1);
-//     PushBack(cabeza, 2);
-//     PushBack(cabeza, 3);
-//     PushBack(cabeza, 4);
-//     PushBack(cabeza, 5);
-
-//     cout << "Recorrido hacia adelante:\n";
-//     PrintForward(cabeza);
-
-//     cout << "Recorrido hacia atras:\n";
-//     PrintBackward(cabeza);
-
-//     PushFront(cabeza, 0);
-
-//     cout << "\nDespues de PushFront:\n";
-//     PrintForward(cabeza);
-
-//     EliminarNodo(cabeza, 3);
-
-//     cout << "\nDespues de eliminar 3:\n";
-//     PrintForward(cabeza);
-
-//     EliminarNodos(cabeza);
-
-//     return 0;
-// }
