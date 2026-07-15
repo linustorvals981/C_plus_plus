@@ -8,7 +8,7 @@ const int mov_y[] = {0, 1, 0, -1, 1, -1, 1, -1};
 const int N = 12;
 
 bool validacion(vector<vector<int>> &laberinto, int x, int y,
-                vector<vector<bool>> visitadas) {
+                vector<vector<bool>> &visitadas) {
   int filas = laberinto.size();
   int columnas = laberinto[0].size();
 
@@ -17,7 +17,7 @@ bool validacion(vector<vector<int>> &laberinto, int x, int y,
 }
 
 bool recursivo(vector<vector<int>> &laberinto, int x, int y, int meta_x,
-               int meta_y, vector<vector<bool>> visitadas,
+               int meta_y, vector<vector<bool>> &visitadas,
                vector<pair<int, int>> &camino) {
   if (x == meta_x && y == meta_y) {
     camino.push_back({x, y});

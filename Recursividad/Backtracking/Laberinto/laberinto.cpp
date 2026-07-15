@@ -17,7 +17,7 @@ bool validation(vector<vector<int>> &laberinto, int x, int y,
 }
 
 bool recursivo(vector<vector<int>> &laberinto, int x, int y, int meta_x,
-               int meta_y, vector<vector<int>> visitadas,
+               int meta_y, vector<vector<bool>> visitadas,
                vector<pair<int, int>> &camino) {
   if (x == meta_x && y == meta_y) {
     camino.push_back({x, y});
